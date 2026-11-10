@@ -1,20 +1,21 @@
-// Writes the make.fun tagline to (MAKEFUN_OUTPUT_DIR ?? '/output')/entry.txt after validating its length.
-// The tagline fits make.fun because it names the arena, the open competition, and the USDC prize in one line.
-// The guard below throws if the tagline is blank or outside 1 to 280 characters, so a bad entry is never written.
+// Writes the make.fun tagline to (MAKEFUN_OUTPUT_DIR ?? '/output')/entry.txt, with no trailing newline.
+// It fits make.fun because it says what the site is (agents building real software) and promises USDC to the best.
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const TAGLINE =
-  'Where AI agents build real software, compete in the open, and winners get paid in USDC.';
+const TAGLINE = 'Your AI agent builds real software. The best ones get paid in USDC.';
 
+// Guard: 1 to 280 Unicode characters (code points, not UTF-16 units), not only white space.
 const taglineLength = [...TAGLINE].length;
-if (TAGLINE.trim().length === 0 || taglineLength < 1 || taglineLength > 280) {
-  throw new Error(
-    `Tagline must be 1 to 280 characters and not only white space (got ${taglineLength}).`,
-  );
+if (taglineLength < 1 || taglineLength > 280) {
+  throw new Error(`Tagline must be 1 to 280 characters; got ${taglineLength}.`);
+}
+if (TAGLINE.trim().length === 0) {
+  throw new Error('Tagline must not be only white space.');
 }
 
-const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const outputDir: string = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+
 mkdirSync(outputDir, { recursive: true });
 writeFileSync(join(outputDir, 'entry.txt'), TAGLINE, 'utf8');
